@@ -21,13 +21,19 @@ def main() -> int:
         return 1
 
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
+    expected = TEXT.encode("utf-8")
     try:
         os.makedirs(out_dir, exist_ok=True)
         path = os.path.join(out_dir, "entry.txt")
         with open(path, "wb") as f:
-            f.write(TEXT.encode("utf-8"))
+            f.write(expected)
+        with open(path, "rb") as f:
+            actual = f.read()
     except OSError as e:
         print(f"error: could not write entry.txt: {e}", file=sys.stderr)
+        return 1
+    if actual != expected:
+        print("error: read-back verification failed: entry.txt bytes do not match TEXT", file=sys.stderr)
         return 1
     return 0
 
